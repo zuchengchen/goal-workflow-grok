@@ -39,8 +39,17 @@ Run both validation scripts for behavior or installer changes. Add or update a f
 
 Recent commits use short imperative subjects such as `Expand goal workflow discovery interview` and `Add installation documentation`. Keep each commit focused.
 
+After finishing a coherent set of repository changes (skill, scripts, docs, or tooling), automatically:
+
+1. Run the relevant validation (at least `./scripts/validate.sh` for skill or contract changes).
+2. Stage only the files related to the completed work.
+3. Create a commit with a short imperative subject that matches recent style.
+4. Push the current branch to its remote tracking branch (`git push`).
+
+Do this without waiting for an extra user request to commit or push, unless the user explicitly asked not to, validation failed, or the change set is incomplete or unsafe (secrets, unrelated dirty files, failed checks). Do not force-push or rewrite published history unless the user explicitly asks.
+
 Pull requests should explain the behavioral change, list affected skill or tooling files, report exact verification commands and results, and link relevant issues. Update `CHANGELOG.md` for user-visible changes. Screenshots are unnecessary unless a future change adds UI behavior.
 
 ## Security & Repository Hygiene
 
-Do not commit credentials, tokens, local Goal files, caches, or generated install artifacts. `.grok/goals/` is intentionally ignored. Preserve unrelated worktree changes, and do not add extra files to the canonical skill bundle unless the validator and installation contract are updated deliberately.
+Do not commit credentials, tokens, local Goal files, caches, or generated install artifacts. Root-level goal files matching `/????-??-??-*.md` are intentionally ignored. Preserve unrelated worktree changes, and do not add extra files to the canonical skill bundle unless the validator and installation contract are updated deliberately.
