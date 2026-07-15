@@ -22,7 +22,6 @@ REQUIRED_EVAL_CATEGORIES = {
     "exhaustive",
     "reject_save",
     "reject_start",
-    "conflicting_goal",
     "no_goal_tool",
     "path_collision",
     "non_chinese",
@@ -201,7 +200,6 @@ def validate_phase_order(body: str, path: Path, checks: Checks) -> None:
         for match in re.finditer(r"^###\s+(?:\d+\.\s*)?(.+?)\s*$", body, re.MULTILINE)
     ]
     stages = [
-        ("active goal check", r"(?:existing|active).*goal|goal.*(?:existing|active)"),
         ("interview depth selection", r"^depth$|(?:interview|discovery).*(?:depth|mode)|(?:depth|mode).*(?:interview|discovery)"),
         ("brainstorming", r"brainstorm"),
         ("discovery", r"discovery"),
@@ -212,6 +210,14 @@ def validate_phase_order(body: str, path: Path, checks: Checks) -> None:
         ("Goal mode start or handoff", r"^start$|(?:start|handoff).*(?:goal|mode)|(?:goal|mode).*(?:start|handoff)"),
         ("execution and completion", r"execut|complet"),
     ]
+    require_pattern(
+        checks,
+        re.sub(r"\s+", " ", body),
+        r"(?:do not|never).{0,80}(?:open|begin|start).{0,120}(?:checking|inspecting).{0,80}(?:active|existing).{0,40}goal|"
+        r"(?:do not|never).{0,80}(?:check|inspect).{0,80}whether.{0,40}(?:a )?goal is already active|"
+        r"(?:do not|never).{0,80}(?:open|begin).{0,80}(?:by )?(?:checking|asking).{0,80}(?:active|existing).{0,40}goal",
+        f"{path} must skip the proactive active-goal confirmation step",
+    )
 
     cursor = 0
     for label, pattern in stages:
@@ -558,7 +564,6 @@ def validate_eval_case(
         "awaiting_revision",
         "saved_not_started",
         "goal_started",
-        "waiting_on_conflict",
         "path_collision_prompt",
         "slash_handoff",
     }

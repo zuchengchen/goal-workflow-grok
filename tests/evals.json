@@ -88,9 +88,9 @@
         ],
         "tool_order": [
           {
-            "before": "check_active_goal",
+            "before": "inspect_context",
             "after": "choose_depth",
-            "reason": "Existing state is checked before the interview begins."
+            "reason": "Local context is inspected before depth selection; no active-goal confirmation."
           },
           {
             "before": "show_coverage",
@@ -406,48 +406,6 @@
       }
     },
     {
-      "id": "conflicting-active-goal",
-      "title": "A conflicting active goal requires an explicit lifecycle decision",
-      "category": "conflicting_goal",
-      "user_language": "en-US",
-      "prompt": "/goal-workflow replace the storage layer",
-      "checkpoint_replies": [],
-      "setup": {
-        "requested_depth": "auto",
-        "goal_tool": "available",
-        "active_goal": "conflicting",
-        "goal_file": "absent",
-        "explicit_token_budget": null
-      },
-      "expected": {
-        "mode": "standard",
-        "required_behaviors": [
-          "Explain the conflict and present numbered draft-for-later, cancel, and resolve-the-active-goal choices.",
-          "If the user chooses a lifecycle action unavailable to the callable tool, provide a supported slash command or direct the user to /goal help without claiming the state changed."
-        ],
-        "forbidden_actions": [
-          "invoke_define_goal",
-          "clear_active_goal",
-          "pause_active_goal",
-          "complete_active_goal",
-          "create_goal"
-        ],
-        "tool_order": [
-          {
-            "before": "check_active_goal",
-            "after": "present_goal_conflict_choices",
-            "reason": "The conflict is discovered before choices are offered."
-          },
-          {
-            "before": "present_goal_conflict_choices",
-            "after": "choose_depth",
-            "reason": "Discovery may begin only after the user resolves the conflict."
-          }
-        ],
-        "terminal_state": "waiting_on_conflict"
-      }
-    },
-    {
       "id": "goal-tool-unavailable",
       "title": "An unavailable goal tool produces an exact slash-command handoff",
       "category": "no_goal_tool",
@@ -587,9 +545,9 @@
         ],
         "tool_order": [
           {
-            "before": "check_active_goal",
+            "before": "inspect_context",
             "after": "choose_depth",
-            "reason": "State and depth are established before interviewing."
+            "reason": "Depth is chosen without a proactive active-goal confirmation."
           },
           {
             "before": "choose_depth",

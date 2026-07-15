@@ -38,26 +38,22 @@ discovering -> drafted -> draft_approved -> saved -> start_approved -> active
 
 Never skip or merge states.
 
-- `discovering`: inspect context, handle existing-goal state, choose depth, brainstorm, interview, build the coverage map, and resolve the save path.
+- `discovering`: inspect context, choose depth, brainstorm, interview, build the coverage map, and resolve the save path.
 - `drafted`: show the complete proposed prompt and absolute save path. No file has been written.
 - `draft_approved`: the user has explicitly approved saving that exact prompt to that exact path. Any content or path change returns to `drafted` and invalidates the approval.
 - `saved`: write succeeded and a readback exactly matched the approved content. A write attempt alone is not sufficient.
 - `start_approved`: after the save, the user explicitly approved starting Goal mode. Declining leaves the workflow in `saved`.
-- `active`: after `start_approved`, a callable goal-activation tool confirmed activation, an existing matching goal was selected as the execution target, or the user confirmed executing the `/goal` slash-command handoff.
+- `active`: after `start_approved`, a callable goal-activation tool confirmed activation, or the user confirmed executing the `/goal` slash-command handoff.
 
 If new information materially changes the objective, scope, verification, risks, stop conditions, or path, return to `discovering` or `drafted` as appropriate. A save failure remains `draft_approved`; an activation failure remains `start_approved`.
 
 ## Workflow
 
-### Existing Goal
+### Goal Lifecycle Tools
 
-At the beginning and again immediately before activation, inspect current goal state when a callable read path exists, or ask the user to run `/goal status` and report the result.
+Do not open this workflow by checking whether a Goal is already active, asking the user to run `/goal status`, or blocking discovery on active-goal state. Proceed directly to depth selection and discovery.
 
-- If no goal is active, continue.
-- If a matching goal is active, ask whether to continue it, prepare a revised successor, or cancel this workflow. Continuing the existing goal exits this new-goal workflow without pretending that its states were traversed. Do not create a duplicate.
-- If a conflicting goal is active, identify the conflict and allow drafting for later only if the user wants that. Do not activate the new goal until the conflict is resolved.
-
-Distinguish callable tools from slash commands:
+Distinguish callable tools from slash commands when lifecycle actions arise during execution or the host surfaces a problem:
 
 - Call only operations actually exposed by the current tool schema. On Grok, `update_goal` reports progress, completion, and blocked status for an already-active goal; it does not create, pause, clear, or replace the active objective. Use any host-specific create/read tools only when they are actually callable and their schemas permit the intended action.
 - Use completion or blocked status only when their semantic conditions are genuinely met. Never mark an unfinished goal complete or blocked merely to free the active-goal slot. On Grok, mark complete with `update_goal` (`completed: true` and a short summary message) and mark blocked only with a genuine `blocked_reason`.
@@ -239,15 +235,14 @@ Enter `start_approved` only after an unambiguous affirmative answer. If the user
 
 ### Start
 
-Recheck existing goal state after entering `start_approved`.
+After entering `start_approved`, activate without a separate active-goal confirmation step:
 
-- If a host-specific create or activate tool is callable and no conflicting goal is active, create or activate the goal with the concise `Goal Mode Objective`.
+- If a host-specific create or activate tool is callable, create or activate the goal with the concise `Goal Mode Objective`.
 - On Grok, activation is normally the exact slash-command handoff: `/goal <Goal Mode Objective>`. Provide that command after start approval. Do not claim activation until the user confirms running it or observable goal state confirms it.
 - Pass `token_budget` only when the user explicitly requested a token budget or supplied its numeric value, the host activation schema accepts it, and the value is preserved in the saved `Goal Tool Options` section so resumed execution can recover it. Never infer it from interview depth, task size, or available context.
-- If a matching goal is already active, do not create a duplicate; confirm that it is the execution target.
-- If a conflict remains, use the Existing Goal rules and remain `start_approved` until resolved.
 - If no create tool is callable, still provide the exact localized handoff command: `/goal <Goal Mode Objective>`. Do not claim activation until the user confirms running it or observable goal state confirms it.
 - If Goal mode itself is unavailable, explain how to enable the host's goals feature (on Grok, `/goal` appears only when the goal feature is enabled and `update_goal` is in the session toolset), but do not claim the workflow is `active`.
+- If the host rejects activation because another goal is active, give the supported slash-command fallback from Goal Lifecycle Tools and remain `start_approved` until the user resolves it; do not proactively interview for active-goal state before offering the handoff.
 
 Enter `active` only after activation is confirmed.
 
