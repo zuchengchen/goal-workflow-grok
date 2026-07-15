@@ -11,9 +11,17 @@ Repository tooling is under `scripts/`: `validate.py` enforces structure and beh
 This project has no compilation or package-install step.
 
 - `./scripts/validate.sh`: validate skill metadata, workflow invariants, mirrors, eval schema, documentation, and repository hygiene.
-- `./scripts/smoke-install.sh`: exercise install, replacement, backup, dry-run, and uninstall behavior in an isolated `GROK_HOME`.
+- `./scripts/smoke-install.sh`: exercise install, replacement, backup, dry-run, uninstall, and `install-from-github.sh` behavior in an isolated `GROK_HOME`.
+- `./scripts/install-from-github.sh install|update [REPO_URL]`: clone a repo URL and install or replace the skill (default URL `https://github.com/zuchengchen/goal-workflow-grok`).
 - `python3 scripts/validate.py --skill-dir skills/goal-workflow --installed-only`: validate the canonical bundle as an installed skill.
 - `git diff --check`: detect whitespace errors before committing.
+
+Primary end-user install UX (document in README/INSTALL, do not regress):
+
+```text
+安装 skill https://github.com/zuchengchen/goal-workflow-grok
+更新 skill https://github.com/zuchengchen/goal-workflow-grok
+```
 
 When available, also run `quick_validate.py skills/goal-workflow`, matching CI behavior.
 

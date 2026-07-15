@@ -90,4 +90,21 @@ if "$UNINSTALLER" --dest "$INVALID_DEST" >/dev/null 2>&1; then
 fi
 test -d "$INVALID_DEST"
 
+# GitHub-style installer against the local checkout (no network).
+GH_INSTALLER="$SCRIPT_DIR/install-from-github.sh"
+GH_DEST="$TMP_ROOT/gh-home/skills/goal-workflow"
+export GROK_HOME="$TMP_ROOT/gh-home"
+"$GH_INSTALLER" install "$REPO_ROOT" --dest "$GH_DEST" >/dev/null
+test -f "$GH_DEST/SKILL.md"
+cmp "$CANONICAL/SKILL.md" "$GH_DEST/SKILL.md"
+if "$GH_INSTALLER" install "$REPO_ROOT" --dest "$GH_DEST" >/dev/null 2>&1; then
+  printf 'ERROR: install-from-github install overwrote without update mode\n' >&2
+  exit 1
+fi
+printf 'local-update-marker\n' >"$GH_DEST/local-update-marker"
+"$GH_INSTALLER" update "$REPO_ROOT" --dest "$GH_DEST" >/dev/null
+test ! -e "$GH_DEST/local-update-marker"
+test -f "$GH_DEST/SKILL.md"
+python3 "$VALIDATOR" --skill-dir "$GH_DEST" --installed-only >/dev/null
+
 printf 'Install/update/uninstall smoke test passed in isolated GROK_HOME.\n'

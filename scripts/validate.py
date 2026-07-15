@@ -13,10 +13,9 @@ from typing import Any
 
 
 SKILL_NAME = "goal-workflow"
-INSTALL_URL = (
-    "https://github.com/zuchengchen/goal-workflow-grok/"
-    "tree/master/skills/goal-workflow"
-)
+INSTALL_URL = "https://github.com/zuchengchen/goal-workflow-grok"
+INSTALL_PHRASE = "安装 skill https://github.com/zuchengchen/goal-workflow-grok"
+UPDATE_PHRASE = "更新 skill https://github.com/zuchengchen/goal-workflow-grok"
 REQUIRED_EVAL_CATEGORIES = {
     "narrow",
     "ambiguous",
@@ -692,6 +691,18 @@ def validate_repository(root: Path, checks: Checks) -> None:
                 INSTALL_URL in text,
                 f"{path} must include the exact canonical install URL: {INSTALL_URL}",
             )
+            checks.require(
+                INSTALL_PHRASE in text,
+                f"{path} must document the Grok install phrase: {INSTALL_PHRASE}",
+            )
+            checks.require(
+                UPDATE_PHRASE in text,
+                f"{path} must document the Grok update phrase: {UPDATE_PHRASE}",
+            )
+            checks.require(
+                "install-from-github.sh" in text,
+                f"{path} must reference scripts/install-from-github.sh",
+            )
 
     root_goal_files = [
         path.name
@@ -745,6 +756,7 @@ def validate_repository(root: Path, checks: Checks) -> None:
     scripts = (
         "validate.sh",
         "install-local.sh",
+        "install-from-github.sh",
         "uninstall-local.sh",
         "smoke-install.sh",
     )

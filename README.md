@@ -8,26 +8,59 @@
 
 它适合目标模糊、存在多种方案，或需要明确范围、风险、验证、发布与停止条件的任务。skill 自带目标质量检查和方案探索流程，不依赖外部 `$define-goal` 或 `$brainstorming` skill，也没有 npm、pip 等包管理器依赖。
 
-## 安装
+## 安装与更新（推荐）
 
-canonical moving-source 地址（分支随 `master` 更新）：
+在 **Grok** 对话中直接输入仓库地址即可，无需先手动 clone：
+
+### 安装
 
 ```text
-https://github.com/zuchengchen/goal-workflow-grok/tree/master/skills/goal-workflow
+安装 skill https://github.com/zuchengchen/goal-workflow-grok
 ```
 
-发布 tag 后，推荐固定安装当前版本：
+Grok 会 clone 本仓库，把 `skills/goal-workflow/` 安装到：
+
+```text
+${GROK_HOME:-$HOME/.grok}/skills/goal-workflow
+```
+
+### 更新
+
+```text
+更新 skill https://github.com/zuchengchen/goal-workflow-grok
+```
+
+Grok 会拉取最新内容，以 `--replace` 方式替换已安装 skill，并保留备份目录。
+
+### Agent 应执行的命令
+
+当用户发出上述自然语言请求时，按模式执行其一（需要 `git`）：
 
 ```bash
-# 从 source checkout 安装到用户技能目录
-git clone https://github.com/zuchengchen/goal-workflow-grok.git /path/to/goal-workflow-source
-git -C /path/to/goal-workflow-source checkout --detach v0.3.0
-/path/to/goal-workflow-source/scripts/install-local.sh
+# 安装
+git clone --depth 1 https://github.com/zuchengchen/goal-workflow-grok.git /tmp/goal-workflow-grok-src
+/tmp/goal-workflow-grok-src/scripts/install-from-github.sh install https://github.com/zuchengchen/goal-workflow-grok
+# 或等价地：
+# /tmp/goal-workflow-grok-src/scripts/install-local.sh
+
+# 更新
+git clone --depth 1 https://github.com/zuchengchen/goal-workflow-grok.git /tmp/goal-workflow-grok-src
+/tmp/goal-workflow-grok-src/scripts/install-from-github.sh update https://github.com/zuchengchen/goal-workflow-grok
 ```
 
-当前 source 版本为 `0.3.0`。tag 尚未发布时应把 ref 换成实际存在的完整 commit SHA；只有确实希望跟随最新提交时才使用 `master`。安装器写入 `${GROK_HOME:-$HOME/.grok}/skills/goal-workflow`，遇到同名目录会停止，不会覆盖。
+更稳妥的单行方式（脚本内部会再次 shallow clone，不依赖当前工作目录）：
 
-手动安装、项目级复制、版本固定、验证、更新、卸载、同名冲突和迁移步骤统一见 [INSTALL.md](INSTALL.md)。
+```bash
+# 安装
+bash -c 'tmp=$(mktemp -d) && git clone --depth 1 https://github.com/zuchengchen/goal-workflow-grok.git "$tmp/s" && "$tmp/s/scripts/install-from-github.sh" install https://github.com/zuchengchen/goal-workflow-grok; ec=$?; rm -rf "$tmp"; exit $ec'
+
+# 更新
+bash -c 'tmp=$(mktemp -d) && git clone --depth 1 https://github.com/zuchengchen/goal-workflow-grok.git "$tmp/s" && "$tmp/s/scripts/install-from-github.sh" update https://github.com/zuchengchen/goal-workflow-grok; ec=$?; rm -rf "$tmp"; exit $ec'
+```
+
+安装完成后可用 `/goal-workflow` 或 `grok inspect` 确认。详细路径、项目级安装、迁移与排错见 [INSTALL.md](INSTALL.md)。
+
+当前 source 版本为 `0.3.0`。
 
 ## 工作流摘要
 
@@ -45,14 +78,14 @@ git -C /path/to/goal-workflow-source checkout --detach v0.3.0
 
 - 支持 Agent Skills 的 Grok（技能目录：`~/.grok/skills/` 或项目 `.grok/skills/`）。
 - 可用的 Goal mode；`/goal` 仅在 goal 功能已启用且会话工具集包含 `update_goal` 时出现。
-- 仅在 clone、更新或检出固定版本时需要 Git。
+- 从 GitHub 安装或更新时需要 Git。
 
 ## 仓库布局
 
 ```text
-goal-workflow/
+goal-workflow-grok/
 ├── skills/goal-workflow/   # canonical 可安装 skill（仅 SKILL.md）
-├── SKILL.md                # 与 canonical 同步的旧安装兼容镜像
+├── SKILL.md                # 与 canonical 同步的兼容镜像
 ├── scripts/                # 安装、卸载、烟测和结构验证
 ├── tests/                  # 行为与结构测试
 ├── .github/workflows/      # CI 验证
@@ -63,6 +96,6 @@ goal-workflow/
 └── LICENSE
 ```
 
-新安装应始终使用 `skills/goal-workflow/`。根目录兼容镜像由验证脚本强制与 canonical 内容一致，仅用于帮助旧 Git 安装平滑迁移，不应作为新安装入口。
+新安装只复制 `skills/goal-workflow/`。根目录 `SKILL.md` 是兼容镜像，不是独立安装入口。
 
 发布历史见 [CHANGELOG.md](CHANGELOG.md)。

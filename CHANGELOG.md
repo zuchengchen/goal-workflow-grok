@@ -21,6 +21,7 @@
 
 ### Changed
 
+- 推荐安装/更新方式改为 Grok 对话话术：`安装 skill https://github.com/zuchengchen/goal-workflow-grok` 与 `更新 skill https://github.com/zuchengchen/goal-workflow-grok`；新增 `scripts/install-from-github.sh` 供 agent 一键执行。
 - Goal 中的自动验证现在必须定义可靠的判定语义：优先使用生产工具退出码或结构化报告，证明预期工作确实执行，并只接受可追溯到当前输入和目标的完整证据。
 
 ### Fixed
