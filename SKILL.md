@@ -7,7 +7,7 @@ description: Turn a rough task into an approved, saved, and executable Grok Goal
 
 ## Purpose
 
-Turn rough intent into a concrete Goal mode prompt, save the approved prompt under the target project's `.grok/goals/` directory, obtain a second approval, and then activate or hand off the goal.
+Turn rough intent into a concrete Goal mode prompt, save the approved prompt as a file directly in the current working directory, obtain a second approval, and then activate or hand off the goal.
 
 Keep this workflow self-contained. Do not invoke or trigger `$define-goal`, even when that skill is installed. Apply the quality standard in this file directly.
 
@@ -150,7 +150,7 @@ Apply this built-in quality standard:
 
 Resolve the save path before asking for save approval:
 
-1. Determine the target project root from reliable workspace or repository evidence. Use `<project-root>/.grok/goals/` when the root is known; otherwise use `<cwd>/.grok/goals/`.
+1. Use the current working directory as the save directory. Always save `<cwd>/<YYYY-MM-DD>-<slug>.md` directly in the cwd. Do not place the file under `.grok/goals/`, a project root, or any other subdirectory by default.
 2. Build `<YYYY-MM-DD>-<slug>.md`. Use a lowercase ASCII slug matching `[a-z0-9]+(?:-[a-z0-9]+)*`; transliterate or summarize non-ASCII titles, limit it to 60 characters, and use a deterministic generic slug if needed.
 3. Resolve and display an absolute normalized path. Never present `~`, a relative path, or a path whose base is ambiguous.
 4. Check whether the path already exists before approval. For a collision, recommend a new collision-free name. Overwriting requires a separate, explicit approval tied to the exact absolute path; do not bundle overwrite consent with prompt approval and never overwrite silently.
@@ -224,11 +224,10 @@ If the user requests any change, revise the draft and ask again. Enter `draft_ap
 Only in `draft_approved`:
 
 1. Recheck collision state immediately before writing.
-2. Create the parent `.grok/goals/` directory if needed.
-3. Write the exact approved content to a unique temporary file in the same directory. Refuse replacement if a collision appeared and no separate overwrite approval exists.
-4. Re-read the temporary file and compare it with the approved content, then atomically rename it to the approved destination. Remove the temporary file after any failure; preserve the existing destination unless replacement was separately approved.
-5. Re-read the destination from the absolute path and compare it with the approved content.
-6. Enter `saved` only on an exact match; otherwise report the error and remain `draft_approved`.
+2. Write the exact approved content to a unique temporary file in the current working directory (the approved save directory). Do not create or use a `.grok/goals/` subdirectory by default. Refuse replacement if a collision appeared and no separate overwrite approval exists.
+3. Re-read the temporary file and compare it with the approved content, then atomically rename it to the approved destination. Remove the temporary file after any failure; preserve the existing destination unless replacement was separately approved.
+4. Re-read the destination from the absolute path and compare it with the approved content.
+5. Enter `saved` only on an exact match; otherwise report the error and remain `draft_approved`.
 
 Report the absolute path and a concise objective summary. Any content or path change after saving requires a new draft and a new save approval.
 

@@ -1,1 +1,4 @@
+# Local goal-workflow prompt files saved in the current working directory
+/????-??-??-*.md
+# Legacy default location (pre-cwd flat layout)
 .grok/goals/

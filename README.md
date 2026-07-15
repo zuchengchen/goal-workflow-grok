@@ -69,10 +69,10 @@ bash -c 'tmp=$(mktemp -d) && git clone --depth 1 https://github.com/zuchengchen/
 - 覆盖目标、范围、约束、兼容性、安全、测试、发布、回滚和停止条件。
 - 将每项自动验证视为需要校准的判定器，保留生产命令退出码、使用当前运行证据，并防止文本扫描的假阳性和假阴性。
 - 起草后先确认是否保存，保存后再确认是否启动 Goal mode。
-- 默认将 goal 文件保存到项目根的 `.grok/goals/`；无法确定项目根时使用当前工作目录下的 `.grok/goals/`。
+- 默认将 goal 文件直接保存到当前工作目录：`<cwd>/<YYYY-MM-DD>-<slug>.md`（不使用 `.grok/goals/` 子目录，也不以项目根为准）。
 - 启动后通过 `/goal <objective>` 激活；执行阶段用 `update_goal` 报告进度、完成或阻塞。
 
-是否提交 `.grok/goals/` 由项目决定：个人 goal 通常应加入 `.gitignore`，团队共享的 goal 可以显式纳入版本控制。
+是否提交这些 goal 文件由项目决定：个人 goal 通常应加入 `.gitignore`（例如根目录的 `/????-??-??-*.md`），团队共享的 goal 可以显式纳入版本控制。
 
 ## 要求
 

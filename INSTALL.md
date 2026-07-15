@@ -163,7 +163,7 @@ find "$dest" -maxdepth 2 -type f -print
 
 ## 从 Codex / 旧路径迁移
 
-0.3.0 起面向 Grok：默认 `${GROK_HOME:-$HOME/.grok}/skills/goal-workflow`，goal 文件默认 `.grok/goals/`，触发 `/goal-workflow`。
+0.3.0 起面向 Grok：默认 `${GROK_HOME:-$HOME/.grok}/skills/goal-workflow`，goal 文件默认直接保存在当前工作目录（`<cwd>/<YYYY-MM-DD>-<slug>.md`），触发 `/goal-workflow`。
 
 常见旧路径：
 
@@ -185,14 +185,14 @@ $HOME/.agents/skills/goal-workflow
 更新 skill https://github.com/zuchengchen/goal-workflow-grok
 ```
 
-Goal 文件不会自动迁移。需要时手动：
+Goal 文件不会自动迁移。需要时手动把旧路径（如 `.codex/goals/`、`.grok/goals/`）下的文件移到当前工作目录：
 
 ```bash
-mkdir -p .grok/goals
-# mv 或 git mv 旧文件到 .grok/goals/
+# mv 或 git mv 旧文件到当前工作目录，例如：
+# mv .grok/goals/2026-07-15-example.md ./
 ```
 
-个人 goal 通常在 `.gitignore` 中加入 `.grok/goals/`。
+个人 goal 通常在 `.gitignore` 中忽略根目录日期前缀文件，例如 `/????-??-??-*.md`。
 
 ## 卸载
 

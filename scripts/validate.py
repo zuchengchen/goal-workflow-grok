@@ -300,9 +300,20 @@ def validate_workflow(body: str, path: Path, checks: Checks) -> None:
     )
     checks.require("collision" in body.lower(), f"{path} must define goal-file collision handling")
     checks.require("atomic" in body.lower(), f"{path} must require an atomic goal-file write")
-    checks.require(
-        ".grok/goals/" in body,
-        f"{path} must use the repository-local .grok/goals/ location",
+    require_pattern(
+        checks,
+        normalized,
+        r"(?:current working directory|<cwd>).{0,80}<YYYY-MM-DD>-<slug>\.md|"
+        r"save.{0,80}directly in the current working directory|"
+        r"<cwd>/<YYYY-MM-DD>-<slug>\.md",
+        f"{path} must default goal saves directly in the current working directory",
+    )
+    require_pattern(
+        checks,
+        normalized,
+        r"(?:do not|never).{0,120}\.grok/goals/|"
+        r"not (?:place|use|create).{0,80}\.grok/goals/",
+        f"{path} must not default goal saves under .grok/goals/",
     )
     require_pattern(
         checks,
@@ -749,8 +760,8 @@ def validate_repository(root: Path, checks: Checks) -> None:
             if line.strip() and not line.lstrip().startswith("#")
         }
         checks.require(
-            ".grok/goals/" in ignore_lines,
-            f"{gitignore_path} must ignore .grok/goals/",
+            "/????-??-??-*.md" in ignore_lines,
+            f"{gitignore_path} must ignore root-level goal files (/????-??-??-*.md)",
         )
 
     scripts = (
