@@ -30,7 +30,7 @@ ${GROK_HOME:-$HOME/.grok}/skills/goal-workflow
 更新 skill https://github.com/zuchengchen/goal-workflow-grok
 ```
 
-Grok 会拉取最新内容，以 `--replace` 方式替换已安装 skill，并保留备份目录。
+Grok 会拉取最新内容，以 `--replace` 方式直接替换已安装 skill，不保留备份目录。
 
 ### Agent 应执行的命令
 

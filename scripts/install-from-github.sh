@@ -19,7 +19,7 @@ usage() {
     "" \
     "Modes:" \
     "  install   Fresh install (fails if destination already exists)" \
-    "  update    Replace an existing install and keep a backup" \
+    "  update    Replace an existing install (no backup retained)" \
     "" \
     "Arguments:" \
     "  REPO_URL  Default: ${DEFAULT_REPO_URL}" \

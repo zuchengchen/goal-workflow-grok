@@ -63,7 +63,7 @@ git clone --depth 1 https://github.com/zuchengchen/goal-workflow-grok.git "$tmp/
 rm -rf -- "$tmp"
 ```
 
-说明：`install-from-github.sh` 会再次 shallow clone 指定 ref，并调用 `install-local.sh` 只复制 `skills/goal-workflow/`（不会把整个仓库塞进 skills 目录）。**更新**使用 `--replace`，旧版本会留在同级 `goal-workflow.backup.<timestamp>.*` 备份目录中。
+说明：`install-from-github.sh` 会再次 shallow clone 指定 ref，并调用 `install-local.sh` 只复制 `skills/goal-workflow/`（不会把整个仓库塞进 skills 目录）。**更新**使用 `--replace` 事务式替换旧版本，成功后不保留备份目录。
 
 若目标已存在却执行了**安装**，脚本会失败；此时应改走**更新**，或先询问用户。
 
@@ -120,7 +120,7 @@ rm -rf -- "$tmp"
 # 安装到用户 skills
 scripts/install-local.sh
 
-# 更新（替换并备份）
+# 更新（直接替换，不备份）
 scripts/install-local.sh --replace
 
 # 安装到指定项目
@@ -147,10 +147,10 @@ scripts/install-from-github.sh update \
 
 当前 source 版本为 `0.3.0`。tag 未发布前请使用完整 commit SHA 作为 `--ref`。
 
-## 同名冲突与备份
+## 同名冲突与替换
 
 - **安装**：目标已存在则停止，避免静默覆盖。
-- **更新**：事务式替换，保留 `goal-workflow.backup.<UTC>.<pid>` 备份。
+- **更新**：事务式替换；成功后删除旧安装，不保留备份目录。
 
 检查已安装内容：
 

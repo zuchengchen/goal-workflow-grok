@@ -18,7 +18,7 @@ usage() {
     "" \
     "Options:" \
     "  --dest PATH  Destination (default: \${GROK_HOME:-\$HOME/.grok}/skills/goal-workflow)" \
-    "  --replace    Transactionally replace an installation and retain a backup" \
+    "  --replace    Transactionally replace an existing installation (no backup retained)" \
     "  -h, --help   Show this help"
 }
 
@@ -109,20 +109,23 @@ if [[ -e "$DEST" && $REPLACE -eq 1 ]]; then
 fi
 
 STAGE_ROOT=""
-BACKUP_PATH=""
+OLD_PATH=""
 OLD_MOVED=0
 COMMITTED=0
 cleanup() {
   local status=$?
   trap - EXIT
   if [[ $status -ne 0 && $OLD_MOVED -eq 1 && $COMMITTED -eq 0 ]]; then
-    if [[ ! -e "$DEST" && -e "$BACKUP_PATH" ]]; then
-      if ! rename_path "$BACKUP_PATH" "$DEST"; then
-        printf 'ERROR: install failed and rollback also failed; recover from %s\n' "$BACKUP_PATH" >&2
+    if [[ ! -e "$DEST" && -n "$OLD_PATH" && -e "$OLD_PATH" ]]; then
+      if ! rename_path "$OLD_PATH" "$DEST"; then
+        printf 'ERROR: install failed and rollback also failed; recover from %s\n' "$OLD_PATH" >&2
       fi
-    elif [[ -e "$BACKUP_PATH" ]]; then
-      printf 'ERROR: install failed after backup; recover the previous installation from %s\n' "$BACKUP_PATH" >&2
+    elif [[ -n "$OLD_PATH" && -e "$OLD_PATH" ]]; then
+      printf 'ERROR: install failed after moving the previous installation; recover from %s\n' "$OLD_PATH" >&2
     fi
+  fi
+  if [[ $COMMITTED -eq 1 && -n "$OLD_PATH" && -e "$OLD_PATH" ]]; then
+    rm -rf "$OLD_PATH"
   fi
   if [[ -n "$STAGE_ROOT" && -d "$STAGE_ROOT" ]]; then
     rm -rf "$STAGE_ROOT"
@@ -139,14 +142,10 @@ cp -R "$SOURCE_DIR/." "$STAGED_SKILL/"
 python3 "$VALIDATOR" --skill-dir "$STAGED_SKILL" --installed-only >/dev/null
 
 if [[ -e "$DEST" ]]; then
-  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  BACKUP_PATH="$DEST_PARENT/goal-workflow.backup.$timestamp.$$"
-  suffix=0
-  while [[ -e "$BACKUP_PATH" ]]; do
-    suffix=$((suffix + 1))
-    BACKUP_PATH="$DEST_PARENT/goal-workflow.backup.$timestamp.$$.${suffix}"
-  done
-  rename_path "$DEST" "$BACKUP_PATH"
+  # Temporary side path for atomic swap only; deleted after a successful replace.
+  OLD_PATH="$(mktemp -d "$DEST_PARENT/.goal-workflow.replace-old.XXXXXX")"
+  rmdir "$OLD_PATH"
+  rename_path "$DEST" "$OLD_PATH"
   OLD_MOVED=1
 fi
 
@@ -154,6 +153,6 @@ rename_path "$STAGED_SKILL" "$DEST"
 COMMITTED=1
 
 printf 'Installed goal-workflow at %s\n' "$DEST"
-if [[ -n "$BACKUP_PATH" ]]; then
-  printf 'Previous installation retained at %s\n' "$BACKUP_PATH"
+if [[ $OLD_MOVED -eq 1 ]]; then
+  printf 'Previous installation replaced (no backup retained)\n'
 fi

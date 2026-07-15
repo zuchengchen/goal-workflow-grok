@@ -54,9 +54,10 @@ python3 "$VALIDATOR" --skill-dir "$DEST" --installed-only >/dev/null
 
 shopt -s nullglob
 backups=("$GROK_HOME/skills"/goal-workflow.backup.*)
+replace_olds=("$GROK_HOME/skills"/.goal-workflow.replace-old.*)
 shopt -u nullglob
-if [[ ${#backups[@]} -ne 1 || ! -f "${backups[0]}/local-update-marker" ]]; then
-  printf 'ERROR: --replace did not retain the previous installation as a backup\n' >&2
+if [[ ${#backups[@]} -ne 0 || ${#replace_olds[@]} -ne 0 ]]; then
+  printf 'ERROR: --replace retained a backup or leftover replace-old directory\n' >&2
   exit 1
 fi
 
@@ -90,21 +91,43 @@ if "$UNINSTALLER" --dest "$INVALID_DEST" >/dev/null 2>&1; then
 fi
 test -d "$INVALID_DEST"
 
-# GitHub-style installer against the local checkout (no network).
+# GitHub-style installer against a temp repo of the current working tree (no network).
+# A plain clone of REPO_ROOT would omit uncommitted installer changes under test.
 GH_INSTALLER="$SCRIPT_DIR/install-from-github.sh"
 GH_DEST="$TMP_ROOT/gh-home/skills/goal-workflow"
+WT_REPO="$TMP_ROOT/wt-repo"
+mkdir -p "$WT_REPO/skills" "$WT_REPO/scripts"
+cp -R "$CANONICAL" "$WT_REPO/skills/goal-workflow"
+cp "$SCRIPT_DIR/install-local.sh" "$SCRIPT_DIR/install-from-github.sh" \
+  "$SCRIPT_DIR/validate.py" "$WT_REPO/scripts/"
+git -C "$WT_REPO" init -q
+git -C "$WT_REPO" config user.email "smoke@example.com"
+git -C "$WT_REPO" config user.name "smoke"
+git -C "$WT_REPO" add skills scripts
+git -C "$WT_REPO" commit -qm "smoke fixture"
+git -C "$WT_REPO" branch -M master
+
 export GROK_HOME="$TMP_ROOT/gh-home"
-"$GH_INSTALLER" install "$REPO_ROOT" --dest "$GH_DEST" >/dev/null
+"$GH_INSTALLER" install "$WT_REPO" --dest "$GH_DEST" >/dev/null
 test -f "$GH_DEST/SKILL.md"
 cmp "$CANONICAL/SKILL.md" "$GH_DEST/SKILL.md"
-if "$GH_INSTALLER" install "$REPO_ROOT" --dest "$GH_DEST" >/dev/null 2>&1; then
+if "$GH_INSTALLER" install "$WT_REPO" --dest "$GH_DEST" >/dev/null 2>&1; then
   printf 'ERROR: install-from-github install overwrote without update mode\n' >&2
   exit 1
 fi
 printf 'local-update-marker\n' >"$GH_DEST/local-update-marker"
-"$GH_INSTALLER" update "$REPO_ROOT" --dest "$GH_DEST" >/dev/null
+"$GH_INSTALLER" update "$WT_REPO" --dest "$GH_DEST" >/dev/null
 test ! -e "$GH_DEST/local-update-marker"
 test -f "$GH_DEST/SKILL.md"
 python3 "$VALIDATOR" --skill-dir "$GH_DEST" --installed-only >/dev/null
+
+shopt -s nullglob
+gh_backups=("$TMP_ROOT/gh-home/skills"/goal-workflow.backup.*)
+gh_replace_olds=("$TMP_ROOT/gh-home/skills"/.goal-workflow.replace-old.*)
+shopt -u nullglob
+if [[ ${#gh_backups[@]} -ne 0 || ${#gh_replace_olds[@]} -ne 0 ]]; then
+  printf 'ERROR: github update retained a backup or leftover replace-old directory\n' >&2
+  exit 1
+fi
 
 printf 'Install/update/uninstall smoke test passed in isolated GROK_HOME.\n'
