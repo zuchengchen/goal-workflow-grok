@@ -13,14 +13,14 @@
 canonical moving-source 地址（分支随 `master` 更新）：
 
 ```text
-https://github.com/zuchengchen/goal-workflow/tree/master/skills/goal-workflow
+https://github.com/zuchengchen/goal-workflow-grok/tree/master/skills/goal-workflow
 ```
 
 发布 tag 后，推荐固定安装当前版本：
 
 ```bash
 # 从 source checkout 安装到用户技能目录
-git clone https://github.com/zuchengchen/goal-workflow.git /path/to/goal-workflow-source
+git clone https://github.com/zuchengchen/goal-workflow-grok.git /path/to/goal-workflow-source
 git -C /path/to/goal-workflow-source checkout --detach v0.3.0
 /path/to/goal-workflow-source/scripts/install-local.sh
 ```

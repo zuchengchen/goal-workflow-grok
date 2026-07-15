@@ -14,7 +14,7 @@ from typing import Any
 
 SKILL_NAME = "goal-workflow"
 INSTALL_URL = (
-    "https://github.com/zuchengchen/goal-workflow/"
+    "https://github.com/zuchengchen/goal-workflow-grok/"
     "tree/master/skills/goal-workflow"
 )
 REQUIRED_EVAL_CATEGORIES = {

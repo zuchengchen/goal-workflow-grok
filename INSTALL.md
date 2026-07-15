@@ -6,8 +6,8 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 仓库 | `https://github.com/zuchengchen/goal-workflow` |
-| canonical URL | `https://github.com/zuchengchen/goal-workflow/tree/master/skills/goal-workflow` |
+| 仓库 | `https://github.com/zuchengchen/goal-workflow-grok` |
+| canonical URL | `https://github.com/zuchengchen/goal-workflow-grok/tree/master/skills/goal-workflow` |
 | moving ref | `master` |
 | 仓库内精确 path | `skills/goal-workflow` |
 | skill 名称 | `goal-workflow` |
@@ -18,8 +18,8 @@ canonical URL 同时编码了精确 ref 和 path。不要只把仓库根 URL 交
 为保证可复现，正式环境和团队配置应优先把 URL 中的 `master` 替换为已发布 tag（当前 source 版本 `0.3.0` 发布后对应 `v0.3.0`）或完整 commit SHA：
 
 ```text
-https://github.com/zuchengchen/goal-workflow/tree/v0.3.0/skills/goal-workflow
-https://github.com/zuchengchen/goal-workflow/tree/<full-commit-sha>/skills/goal-workflow
+https://github.com/zuchengchen/goal-workflow-grok/tree/v0.3.0/skills/goal-workflow
+https://github.com/zuchengchen/goal-workflow-grok/tree/<full-commit-sha>/skills/goal-workflow
 ```
 
 只有确实希望自动跟随最新提交时才使用 `master`。版本 tag 必须已经发布；发布前请固定到实际存在的完整 commit SHA。
@@ -63,7 +63,7 @@ test ! -e "$dest" || {
   exit 1
 }
 
-git clone https://github.com/zuchengchen/goal-workflow.git "$source_dir"
+git clone https://github.com/zuchengchen/goal-workflow-grok.git "$source_dir"
 git -C "$source_dir" checkout --detach "$ref"
 "$source_dir/scripts/install-local.sh" --dest "$dest"
 ```
@@ -83,7 +83,7 @@ ref="0123456789abcdef0123456789abcdef01234567"
 项目级安装适合只在某个仓库中启用或由团队共同维护。先 clone 并检出所需版本：
 
 ```bash
-git clone https://github.com/zuchengchen/goal-workflow.git /path/to/goal-workflow-source
+git clone https://github.com/zuchengchen/goal-workflow-grok.git /path/to/goal-workflow-source
 git -C /path/to/goal-workflow-source checkout --detach v0.3.0
 ```
 
@@ -307,7 +307,7 @@ rm -rf -- "$dest"
 确认使用的是完整 canonical URL 或 `skills/goal-workflow/` 路径，而不是仓库根：
 
 ```text
-https://github.com/zuchengchen/goal-workflow/tree/master/skills/goal-workflow
+https://github.com/zuchengchen/goal-workflow-grok/tree/master/skills/goal-workflow
 ```
 
 其中 ref 是 `master`，path 是 `skills/goal-workflow`。
